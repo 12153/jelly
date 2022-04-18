@@ -12,10 +12,29 @@ const (
 )
 
 func (c *castlings) on(val uint) {
-	*c = castlings(val)
+	*c |= castlings(val)
 }
 func (c *castlings) off(val uint) {
-	*c = castlings(^val)
+	*c &= castlings(^val)
+}
+
+func (c castlings) String() string {
+	flags := ""
+	if uint(c)&shortW != 0 {
+		flags += "K"
+	}
+	if uint(c)&longW != 0 {
+		flags += "Q"
+	}
+	if uint(c)&shortB != 0 {
+		flags += "k"
+	}
+	if uint(c)&longB != 0 {
+		flags += "q"
+	}
+
+	return flags
+
 }
 
 func parseCastling(feCastle string) castlings {

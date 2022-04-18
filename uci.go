@@ -9,14 +9,11 @@ import (
 )
 
 var tell = mainTell
-var trim = strings.TrimSpace
-var low = strings.ToLower
 var saveBM = ""
 
-var bInfinite *bool
-
 func uci(frGui chan string, myTell func(text ...string)) {
-	*bInfinite = true
+	a := true
+	b := &a
 	tell = myTell
 	tell("hello from uci")
 	quit := false
@@ -30,7 +27,7 @@ func uci(frGui chan string, myTell func(text ...string)) {
 		case cmd := <-frGui:
 			words = strings.Split(cmd, " ")
 		case bm = <-frEng:
-			handlebm(bm, bInfinite)
+			handlebm(bm, b)
 			continue
 		}
 
@@ -55,11 +52,17 @@ func uci(frGui chan string, myTell func(text ...string)) {
 		case "ponderhit":
 			handlePonderHit()
 		case "stop":
-			handleStop(toEng, bInfinite)
+			handleStop(toEng, b)
 		case "quit", "q":
 			quit = true
 			continue
+		case "pb":
+			board.Print()
+		case "pbb":
+			board.printAllBB()
 
+		default:
+			tell("info string unknown cmd")
 		}
 	}
 }
@@ -150,8 +153,8 @@ func handlePosition(cmd string) {
 }
 
 func handleNewGame() {
-	tell("info string go infinite not implemented yet")
-
+	board.newGame()
+	tell("info string go newgame not implemented yet")
 }
 
 func handleUci() {

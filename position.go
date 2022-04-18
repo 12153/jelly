@@ -325,17 +325,16 @@ func (b *boardStruct) move(fr, to, pr int) bool {
 
 	case p12 == wP && b.sq[to] == empty:
 		if to-fr == 16 {
-			newEp = fr + 8
+			newEp = to + 8
 		} else if to-fr == 7 || to-fr == 9 { // must be en passant
 			b.setSq(empty, to-8)
 		}
 	case p12 == bP && b.sq[to] == empty:
-		if to-fr == 16 {
+		if fr-to == 16 {
 			newEp = fr + 8
 		} else if to-fr == 7 || to-fr == 9 { // must be en passant
-			b.setSq(empty, to-8)
+			b.setSq(empty, to+8)
 		}
-	case p12 == wP:
 	}
 
 	b.ep = newEp
@@ -370,7 +369,7 @@ func (b *boardStruct) setSq(p12, s int) {
 
 	p := piece(p12)
 	sd := p12Color(p12)
-	if p == KING {
+	if p == wK || p == bK {
 		b.King[sd] = s
 	}
 
@@ -400,7 +399,7 @@ func (b *boardStruct) clear() {
 
 	b.wbBB[WHITE], b.wbBB[BLACK] = 0, 0
 
-	for i := 0; i <= nP; i++ {
+	for i := 0; i < nP; i++ {
 		b.pieceBB[i] = 0
 	}
 
@@ -543,4 +542,47 @@ func fen2Int(c string) int {
 		}
 	}
 	return 0
+}
+
+func (b *boardStruct) Print() {
+	txtStm := "Black"
+	if b.stm == WHITE {
+		txtStm = "White"
+	}
+
+	txtEp := "-"
+	if b.ep != 0 {
+		txtEp = sq2Fen[b.ep]
+	}
+
+	fmt.Printf("%v to move; ep: %v   castle: %v\n", txtStm, txtEp, b.castlings.String())
+
+	fmt.Println("   +-------+-------+-------+-------+-------+-------+-------+-------+")
+	for lines := 8; lines > 0; lines-- {
+		fmt.Println("   |       |       |       |       |       |       |       |")
+		fmt.Printf("%v", lines)
+		for i := (lines - 1) * 8; i < lines*8; i++ {
+			if b.sq[i] == bP {
+				fmt.Printf("   o    |")
+			} else {
+				fmt.Printf("   %v   |", int2Fen(b.sq[i]))
+			}
+		}
+		fmt.Println()
+		fmt.Println("   |       |       |       |       |       |       |       |")
+		fmt.Println("   +-------+-------+-------+-------+-------+-------+-------+-------+")
+
+	}
+	fmt.Println("    A        B        C        D        E        F        G        H")
+}
+
+func (b *boardStruct) printAllBB() {
+	fmt.Print(b, "to be built")
+}
+
+func int2Fen(i int) string {
+	if i == 15 {
+		return "z"
+	}
+	return p12ToFen[i : i+1]
 }
