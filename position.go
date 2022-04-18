@@ -415,14 +415,76 @@ func (b *boardStruct) newGame() {
 
 }
 
-func (b *boardStruct) genRookMoves() {
-	sd := b.stm
-	frBB := b.pieceBB[ROOK] & b.wbBB[sd]
-	p12 := pc2P12(ROOK, sd)
-	b.genFrMoves(p12, frBB, &ml)
+func (b *boardStruct) genRookMoves(ml *MoveList, sd int) {
+	allRBB := b.pieceBB[ROOK] & b.wbBB[sd]
+	p12 := uint(pc2P12(ROOK, color(sd)))
+	ep := uint(b.ep)
+	castl := b.castlings
+	var mv move
+	for fr := allRBB.firstOne(); fr != 64; fr = allRBB.firstOne() {
+		rk := fr / 8
+		fl := fr % 8
+		//N
+		for r := rk + 1; r < 8; r++ {
+			to := uint(rk*8 + fl)
+			cp := uint(b.sq[to])
+			if cp != empty && p12Color(int(cp)) == color(sd) {
+				break
+			}
+			mv.packMove(uint(fr), to, p12, cp, empty, ep, castl)
+			ml.add(mv)
+			if cp != empty {
+				break
+			}
+		}
+
+		//S
+		for r := rk - 1; r < 8; r-- {
+			to := uint(rk*8 + fl)
+			cp := uint(b.sq[to])
+			if cp != empty && p12Color(int(cp)) == color(sd) {
+				break
+			}
+			mv.packMove(uint(fr), to, p12, cp, empty, ep, castl)
+			ml.add(mv)
+			if cp != empty {
+				break
+			}
+		}
+
+		// EAST
+		for f := fl + 1; f < 8; f++ {
+			to := uint(rk*8 + f)
+			cp := uint(b.sq[to])
+			if cp != empty && p12Color(int(cp)) == color(sd) {
+				break
+			}
+			mv.packMove(uint(fr), to, p12, cp, empty, ep, castl)
+			ml.add(mv)
+			if cp != empty {
+				break
+			}
+		}
+
+		// WEST
+		for f := fl - 1; f <= 0; f-- {
+			to := uint(rk*8 + f)
+			cp := uint(b.sq[to])
+			if cp != empty && p12Color(int(cp)) == color(sd) {
+				break
+			}
+			mv.packMove(uint(fr), to, p12, cp, empty, ep, castl)
+			ml.add(mv)
+			if cp != empty {
+				break
+			}
+		}
+	}
 }
 
-func (b *boardStruct) genFrMoves(p12 int, frBB bitboard, ml *MoveList) {}
+func (b *boardStruct) genFrMoves(p12 int, frBB bitboard, ml *MoveList) {
+
+}
 
 func parseFEN(FEN string) {
 	fenIx := 0
