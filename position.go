@@ -285,6 +285,7 @@ func initFenSq2int() {
 	sq2Fen[H8] = "h8"
 }
 
+// makes a move on the board
 func (b *boardStruct) move(fr, to, pr int) bool {
 	newEp := 0
 
@@ -356,6 +357,7 @@ func (b *boardStruct) move(fr, to, pr int) bool {
 
 }
 
+// set a square on the board
 func (b *boardStruct) setSq(p12, s int) {
 	b.sq[s] = p12
 	if p12 == empty {
@@ -412,6 +414,15 @@ func (b *boardStruct) newGame() {
 	parseFEN(startpos)
 
 }
+
+func (b *boardStruct) genRookMoves() {
+	sd := b.stm
+	frBB := b.pieceBB[ROOK] & b.wbBB[sd]
+	p12 := pc2P12(ROOK, sd)
+	b.genFrMoves(p12, frBB, &ml)
+}
+
+func (b *boardStruct) genFrMoves(p12 int, frBB bitboard, ml *MoveList) {}
 
 func parseFEN(FEN string) {
 	fenIx := 0
